@@ -1,0 +1,543 @@
+2: [Title] AI Job Market Salary Prediction
+3: [Subtitle] Technical Specification Design - Semester II
+4: [Normal] TABLE OF CONTENTS
+6: [Heading 1] A - PROJECT INTRODUCTION
+7: [Normal] (PIC = Bảo)
+8: [Heading 2] A.1. Project Scope
+9: [Normal] 1.1. Project Overview:
+11: [Normal] 1.2. Expected Outcomes:
+13: [Normal] Regression models are trained and compared.
+15: [Normal] 1.3. Problem Statement:
+16: [Normal] Raw job-market data presents several challenges:
+20: [Normal] Corrupted values hidden inside otherwise clean-looking categorical columns.
+21: [Normal] Contradictory features that appear to measure the same concept but disagree with each other
+22: [Normal] High-cardinality categorical columns (many job titles, cities, countries).
+25: [Heading 2] A.2. Pipeline Overview
+28: [Heading 2] A.3. Scope and Limitations of the Project
+31: [Heading 1] B - SYSTEM ARCHITECTURE & TECHNICAL REQUIREMENTS
+32: [Normal] (PIC = Duy AI)
+33: [Heading 2] B.1. Hardware and Infrastructure Requirements
+35: [Heading 2] B.2. Software Environment
+37: [Heading 2] B.3. Technology Stack
+38: [Normal] Using Python libraries such as Pandas, NumPy, Matplotlib, and Scikit-learn.
+42: [Heading 1] C. DESIGN PROCESS
+45: [Heading 2] STAGE 1. Load Data
+46: [Normal] 1.1. To load raw AI Job Market Dataset:
+48: [Normal] 1.2. Exploratory Data Analysis (EDA) and understand a real-world-style AI job market dataset:
+53: [Normal] Data Profiling:
+55: [Heading 2] STAGE 2. Project Scope & Initial Inspection
+58: [Normal] - descriptive statistical summaries (df.describe())
+59: [Normal] - profiling/ dictionary, describe
+60: [Normal] - data schema & rule
+61: [Normal] - Formal Task Definition
+63: [Normal] - Target Distribution:
+64: [Normal] annual_salary_usd ranges from $90,000 to $384,000;
+65: [Normal] mean = $194,892;
+66: [Normal] median = $180,000;
+67: [Normal] standard deviation = $66,507.
+70: [Normal] Figure 1. salary target distribution from the raw CSV.
+72: [Heading 2] STAGE 3. Data Quality Check
+73: [Normal] - detect nulls and duplicate records
+75: [Heading 2] STAGE 4. Corrupted Row Removal
+80: [Normal] - Zero duplicate rows were found.
+82: [Heading 2] STAGE 5. Contradictory-Feature Investigation (Điều tra đặc trưng mâu thuẫn)
+83: [Normal] - To investigate contradictory features tell a consistent story  before trusting either of them.
+89: [Normal] Figure 2b. share of rows affected by selected logic/integrity findings.
+94: [Normal] Figure 2c. year of experience distribution by experience level.
+97: [Normal] Mean Salary by experience_level (categorical bucket)
+98: [Normal] Entry (0–2 yrs): ≈ $194,837
+99: [Normal] Mid (3–5 yrs): ≈ $196,091
+100: [Normal] Senior (6–9 yrs): ≈ $195,826
+101: [Normal] Lead (10+ yrs): ≈ $193,037
+103: [Normal] Figure 3. annual salary distribution by experience level.
+105: [Normal] Mean Salary by years_of_experience (raw numeric, selected values)
+106: [Normal] 1 year: ≈ $325,800
+107: [Normal] 5 years: ≈ $214,152
+108: [Normal] 10 years: ≈ $132,020
+109: [Normal] 15 years: ≈ $90,000
+111: [Normal] Figure 4a. annual salary distribution by years of experience.
+120: [Normal] Ablation study: Decision logic of Stage 5
+121: [Normal] years_of_experience
+122: [Normal] │
+123: [Normal] ├─ Strong CV predictive value
+124: [Normal] ├─ Strong OOT predictive value
+125: [Normal] ├─ Granular numeric information
+126: [Normal] └─ KEEP WITH DOMAIN-VALIDATION FLAG
+127: [Normal] │
+128: [Normal] ▼
+129: [Normal] annual_salary_usd
+130: [Normal] experience_level
+131: [Normal] │
+132: [Normal] ├─ No standalone predictive value
+133: [Normal] ├─ 74.2% logical inconsistency
+134: [Normal] ├─ Redundant when logically consistent
+135: [Normal] ├─ Apparent RF lift comes from contradiction
+136: [Normal] └─ DROP / QUARANTINE
+140: [Heading 2] STAGE 6. Feature Selection & Leakage Preventaion
+141: [Normal] (drop leakage & unused columns)
+142: [Normal] 6.1. Study feature correlation with the target variable:
+146: [Normal] Figure 5. feature-family correlation on Train.
+149: [Normal] Figure 6. top 30 features by Pearson correlation on Train.
+152: [Normal] Figure 7. top 30 features by Pearson correlation on Train dataset.
+154: [Normal] Key Correlation Findings
+156: [Normal] Strongest negative: years_of_experience ≈ −0.721 — consistent with the contradictory/synthetic-looki
+162: [Normal] job_id — identifier, not a feature
+164: [Normal] experience_level — redundant with, and contradicts, years_of_experience (see STAGE 5)
+165: [Normal] salary_min_usd, salary_max_usd — leak the target (derived from the same salary structure)
+166: [Normal] salary_tier — leaks the target (a binned version of it)
+170: [Normal] Figure 8a. salary range inconsistency.
+173: [Normal] Figure 8b. salary range inconsistency ~40.3%.
+176: [Normal] Figure 9. salary tier inconsistency.
+179: [Normal] required_skills — free text, would need separate NLP treatment
+182: [Normal] Figure 10. top 30 required skills on Train dataset.
+186: [Normal] Redundant :
+190: [Normal] 6.3. Target leakage investigation (Điều tra rò rỉ mục tiêu)
+193: [Normal] - Required Feature-Family Ablation Experiments:
+195: [Heading 2] STAGE 7. Correlation Encoding & Analysis
+196: [Normal] (PIC = Duy AI)
+198: [Normal] 7.1. Imputation and Transformation:
+203: [Normal] - VIF (Variance Inflation Factor): Kiểm tra hiện tượng đa cộng tuyến giữa các biến độc lập.
+204: [Normal] 7.3. Encoding (Mã hóa):
+215: [Normal] - Important caveat: pd.get_dummies is fine for a one-off analysis dataframe, but is not safe to reus
+216: [Normal] 7.4. Scaling (Thay đổi quy mô):
+218: [Normal] 7.5. Feature Selection:
+219: [Normal] chị gửi em phần chị chỉnh lại cho rõ ràng, em thay vào mục C, Stage 7.5 nhé:
+220: [Normal] 7.5. Feature Selection:
+221: [Normal] - The project employs a strategic, two-phase approach to feature selection:
+226: [Normal] - Lasso (L1 Regularization - Embedded Method)
+231: [Normal] - RFE (Recursive Feature Elimination - Wrapper Method)
+237: [Normal] 7.6. Feature Construction:
+238: [Normal] - Feature Construction (Xây dựng đặc trưng mới):
+243: [Normal] Các Fold để Cross-Validation trên tập Train (Jan 2025 – Jan 2026):
+244: [Normal] Fold 1: Train (Jan 2025 – May 2025); Validation (Jun 2025).
+245: [Normal] Fold 2: Train (Jan 2025 – Jun 2025); Validation (Jul 2025).
+246: [Normal] Fold 3: Train (Jan 2025 – Jul 2025); Validation (Aug 2025).
+247: [Normal] Fold 4: Train (Jan 2025 – Aug 2025); Validation (Sep 2025).
+248: [Normal] Fold 5: Train (Jan 2025 – Sep 2025); Validation (Oct 2025).
+249: [Normal] Tiếp tục cho đến Feb 2026.
+251: [Normal] Tham số n_splits: Thiết lập n_splits=5 trong hàm TimeSeriesSplit của thư viện Scikit-Learn.
+252: [Normal] Không xáo trộn (No Shuffling): Luôn đảm bảo shuffle=False để giữ đúng trình tự thời gian.
+254: [Normal] - Cách đánh giá kết quả từ 5 Folds: Sau khi chạy xong 5 folds, bạn cần thực hiện các bên dưới.
+256: [Normal] Kiểm tra độ lệch chuẩn (Std Dev):
+257: [Normal] Nếu độ lệch giữa các fold thấp: Mô hình ổn định.
+261: [Normal] 7.7. Preprocessing Contract:
+262: [Normal] - Configuration Contract
+268: [Normal] - Stage Failure Policy
+270: [Heading 2] STAGE 8. Train-Test Split
+271: [Normal] (PIC = Minh)
+272: [Normal] - Data followed time series:
+275: [Normal] Train shape: approximately 1,199 rows × 11 columns
+276: [Normal] Test shape: approximately 300 rows × 11 columns
+281: [Normal] BEFORE VS AFTER DATA PROCESSING
+285: [Heading 2] STAGE 9. Model Training & Comparison
+286: [Normal] (PIC = Minh)
+287: [Normal] Purpose of Stage 9: compare the approved regression candidates on the same development-period tempor
+288: [Normal] 9.1. Evaluation protocol:
+292: [List Bullet] Evaluate every candidate on the same folds and the same 13-feature contract.
+293: [List Bullet] Rank candidates by mean MAE, while reviewing RMSE, R², MedAE and fold-to-fold variation.
+296: [Normal] 9.2. Candidate models:
+298: [Normal] 9.3. Temporal cross-validation results:
+304: [Normal] Stage outcome: Random Forest advances to bounded tuning in Stage 10. The decision is frozen before t
+305: [Heading 2] STAGE 10. Best Model Selection & Feature Importance Review
+306: [Normal] (PIC = Minh)
+307: [Normal] Purpose of Stage 10: tune the selected model family inside the development period, evaluate the froz
+308: [Normal] 10.1. Bounded hyperparameter tuning:
+311: [Normal] 10.2. Final locked-test evaluation:
+314: [Caption Tech] Figure 11. Actual versus predicted annual salary for the 298 locked-test records.
+318: [Normal] 10.3. Error slices and practical uncertainty:
+324: [Normal] 10.4. Feature reliance review:
+330: [Normal] Stage outcome: retain Random Forest as the final reviewed model for academic benchmarking and scenar
+331: [Heading 2] STAGE 11. Save Deployable Pipeline + Metadata
+332: [Normal] (PIC = Hiển)
+333: [Normal] Purpose of Stage 11: package the fitted preprocessing and final estimator as one deployable pipeline
+336: [Normal] 11.1. Artifact contract:
+338: [Normal] 11.2. Packaging procedure:
+343: [Normal] 11.3. Verification before acceptance:
+346: [Normal] Stage outcome: the deployable bundle and metadata contract are ready for application integration, su
+347: [Heading 2] STAGE 12. Streamlit Salary Prediction Dashboard
+348: [Normal] (PIC = Hiển)
+349: [Normal] Purpose of Stage 12: provide an authenticated Streamlit interface that explains the data pipeline, d
+350: [Normal] 12.1. Application structure:
+353: [List Bullet] Overview summarizes the selected model, final metrics, available evidence and intended use.
+354: [List Bullet] Data quality and model evidence pages connect the interface to the earlier pipeline stages.
+356: [List Bullet] The model is cached by file so ordinary widget reruns do not reload the artifact unnecessarily.
+358: [Normal] 12.2. Prediction flow:
+359: [Normal] 1. Collect raw values through one form and process them only after the user submits the form.
+366: [Normal] 12.3. Runtime acceptance checks:
+369: [Normal] Stage outcome: the application is suitable for academic demonstration and scenario exploration. It r
+374: [Heading 1] D – CODE IMPLEMENTATION
+375: [Normal] Dataset: ai_jobs_market_2025_2026.csv (1,500 AI job postings, 25 attributes)
+376: [Heading 2] D.1. salary_predict_corrected.ipynb File
+377: [Normal] # Import the libraries and Load the dataset
+378: [Normal] import pandas as pd
+379: [Normal] import numpy as np
+381: [Normal] # NOTE: update this path to match your local machine
+385: [Normal] df.head(5)
+387: [Normal] df.info()
+389: [Normal] df.describe().round(2)
+392: [Normal] print("Null values in each column:\n", df.isnull().sum())
+393: [Normal] print("=" * 50)
+394: [Normal] print("Duplicate rows:", df.duplicated().sum())
+396: [Normal] # Sanity-check every categorical column's values, not just null/duplicate counts.
+397: [Normal] # This is what catches corrupted or unexpected values sitting inside otherwise "clean" columns.
+398: [Normal] categorical_cols = df.select_dtypes(include=["object"]).columns.tolist()
+399: [Normal] for col in categorical_cols:
+400: [Normal] print(f"\n--- {col} ({df[col].nunique()} unique values) ---")
+401: [Normal] print(df[col].value_counts())
+404: [Normal] bad_rows = df[df["AI Engineering"] == "job_category"]
+405: [Normal] print(f"Corrupted rows found: {len(bad_rows)}")
+406: [Normal] display(bad_rows)
+408: [Normal] # Only 1 row out of 1500 — drop it rather than guess/impute a category.
+409: [Normal] df = df[df["AI Engineering"] != "job_category"].reset_index(drop=True)
+410: [Normal] print("Row count after cleanup:", len(df))
+413: [Normal] print("Mean salary by experience_level (categorical bucket):")
+414: [Normal] print(df.groupby("experience_level")["annual_salary_usd"].mean().round(0))
+415: [Normal] print()
+416: [Normal] print("Mean salary by years_of_experience (raw numeric):")
+417: [Normal] print(df.groupby("years_of_experience")["annual_salary_usd"].mean().round(0))
+421: [Normal] leak_and_unused_cols = [
+422: [Normal] "job_id",                 # identifier, not a feature
+423: [Normal] "salary_min_usd",         # leaks target (derived from same salary structure)
+424: [Normal] "salary_max_usd",         # leaks target
+425: [Normal] "salary_tier",            # leaks target (binned version of the target)
+426: [Normal] "experience_level",       # redundant with years_of_experience, and contradicts it (see above)
+427: [Normal] "required_skills",        # free text, would need separate NLP treatment
+428: [Normal] "posting_year",
+429: [Normal] "posting_month",
+430: [Normal] "is_senior",
+431: [Normal] "is_remote_friendly",
+432: [Normal] "is_llm_role",
+433: [Normal] "ai_salary_premium_pct",
+434: [Normal] "demand_growth_yoy_pct",
+435: [Normal] ]
+437: [Normal] df = df.drop(columns=leak_and_unused_cols)
+438: [Normal] df.head()
+440: [Normal] # Encoding for Correlation Analysis  Build a *separate* encoded copy for correlation analysis (`df_c
+441: [Normal] df_corr = df.copy()
+443: [Normal] # Ordinal: education has a real ranking, so encode it as one
+444: [Normal] education_order = {
+445: [Normal] "Bootcamp/Self-taught": 0,
+446: [Normal] "Associate's": 1,
+447: [Normal] "Bachelor's": 2,
+448: [Normal] "Master's": 3,
+449: [Normal] "PhD": 4,
+450: [Normal] }
+451: [Normal] df_corr["education_required"] = df_corr["education_required"].map(education_order)
+453: [Normal] # Nominal: one-hot encode everything else that's still categorical, regardless of cardinality
+454: [Normal] nominal_cols_for_corr = df_corr.select_dtypes(include=["object"]).columns.tolist()
+455: [Normal] print("One-hot encoding (correlation view only):", nominal_cols_for_corr)
+457: [Normal] df_corr = pd.get_dummies(df_corr, columns=nominal_cols_for_corr, drop_first=False)
+458: [Normal] df_corr.head()
+460: [Normal] # Correlation Analysis (single pass, on the corrected encoding)
+461: [Normal] target_corr = df_corr.corr(numeric_only=True)["annual_salary_usd"].sort_values(ascending=False)
+462: [Normal] target_corr
+464: [Normal] import matplotlib.pyplot as plt
+466: [Normal] # A full heatmap is unreadable once job_title/city/etc are one-hot encoded (90+ columns).
+467: [Normal] # A sorted bar chart of correlation with the target is the readable equivalent.
+468: [Normal] top_corr = target_corr.drop("annual_salary_usd").reindex(
+469: [Normal] target_corr.drop("annual_salary_usd").abs().sort_values(ascending=False).index
+470: [Normal] ).head(25)
+472: [Normal] plt.figure(figsize=(10, 8), dpi=100)
+473: [Normal] colors = ["#d62728" if v < 0 else "#2ca02c" for v in top_corr.values]
+474: [Normal] plt.barh(top_corr.index[::-1], top_corr.values[::-1], color=colors[::-1])
+475: [Normal] plt.axvline(0, color="black", linewidth=0.8)
+476: [Normal] plt.title("Top 25 Features by |Correlation| with annual_salary_usd")
+477: [Normal] plt.xlabel("Correlation")
+478: [Normal] plt.tight_layout()
+479: [Normal] plt.show()
+483: [Normal] from sklearn.model_selection import train_test_split
+485: [Normal] X = df.drop(columns=["annual_salary_usd"])
+486: [Normal] y = df["annual_salary_usd"]
+488: [Normal] X_train, X_test, y_train, y_test = train_test_split(
+489: [Normal] X, y, test_size=0.2, random_state=42
+490: [Normal] )
+492: [Normal] print("Train shape:", X_train.shape)
+493: [Normal] print("Test shape:", X_test.shape)
+496: [Normal] from sklearn.compose import ColumnTransformer
+497: [Normal] from sklearn.pipeline import Pipeline
+498: [Normal] from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder, StandardScaler
+499: [Normal] from sklearn.linear_model import LinearRegression, Ridge
+500: [Normal] from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+501: [Normal] from sklearn.dummy import DummyRegressor
+502: [Normal] from sklearn.svm import SVR
+503: [Normal] from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+505: [Normal] ordinal_col = ["education_required"]
+506: [Normal] ordinal_categories = [["Bootcamp/Self-taught", "Associate's", "Bachelor's", "Master's", "PhD"]]
+507: [Normal] nominal_cols = [c for c in X.select_dtypes(include=["object"]).columns if c not in ordinal_col]
+508: [Normal] numeric_cols = [c for c in X.columns if c not in nominal_cols + ordinal_col]
+510: [Normal] print("Ordinal:", ordinal_col)
+511: [Normal] print("Nominal (one-hot):", nominal_cols)
+512: [Normal] print("Numeric (passthrough):", numeric_cols)
+514: [Normal] def make_preprocessor():
+515: [Normal] # Fresh ColumnTransformer per model -- avoids sharing fitted state across pipelines.
+516: [Normal] return ColumnTransformer(
+517: [Normal] transformers=[
+518: [Normal] ("ordinal", OrdinalEncoder(categories=ordinal_categories), ordinal_col),
+519: [Normal] ("onehot", OneHotEncoder(handle_unknown="ignore", sparse_output=False), nominal_cols),
+520: [Normal] ],
+521: [Normal] remainder="passthrough",
+522: [Normal] )
+524: [Normal] models = {
+526: [Normal] "Linear Regression": Pipeline([
+527: [Normal] ("preprocess", make_preprocessor()),
+528: [Normal] ("model", LinearRegression()),
+529: [Normal] ]),
+530: [Normal] "Ridge Regression": Pipeline([
+531: [Normal] ("preprocess", make_preprocessor()),
+532: [Normal] ("model", Ridge(alpha=1.0, random_state=42)),
+533: [Normal] ]),
+534: [Normal] "Random Forest": Pipeline([
+535: [Normal] ("preprocess", make_preprocessor()),
+536: [Normal] ("model", RandomForestRegressor(n_estimators=300, random_state=42, n_jobs=-1)),
+537: [Normal] ]),
+538: [Normal] "Gradient Boosting": Pipeline([
+539: [Normal] ("preprocess", make_preprocessor()),
+540: [Normal] ("model", GradientBoostingRegressor(random_state=42)),
+541: [Normal] ]),
+542: [Normal] "SVM (RBF kernel)": Pipeline([
+543: [Normal] ("preprocess", make_preprocessor()),
+544: [Normal] ("scale", StandardScaler()),
+545: [Normal] ("model", SVR(kernel="rbf", C=1000, epsilon=1000)),
+546: [Normal] ]),
+547: [Normal] }
+549: [Normal] results = []
+550: [Normal] fitted_models = {}
+552: [Normal] for name, model in models.items():
+553: [Normal] model.fit(X_train, y_train)
+554: [Normal] preds = model.predict(X_test)
+556: [Normal] mae = mean_absolute_error(y_test, preds)
+557: [Normal] rmse = mean_squared_error(y_test, preds) ** 0.5
+558: [Normal] r2 = r2_score(y_test, preds)
+560: [Normal] results.append({"model": name, "MAE": mae, "RMSE": rmse, "R2": r2})
+561: [Normal] fitted_models[name] = model
+563: [Normal] results_df = pd.DataFrame(results).sort_values("R2", ascending=False).reset_index(drop=True)
+564: [Normal] results_df.round(3)
+566: [Normal] import matplotlib.pyplot as plt
+568: [Normal] plt.figure(figsize=(8, 5), dpi=100)
+569: [Normal] plt.barh(results_df["model"][::-1], results_df["R2"][::-1], color="#1f77b4")
+570: [Normal] plt.axvline(0, color="black", linewidth=0.8)
+571: [Normal] plt.xlabel("R2 on test set")
+572: [Normal] plt.title("Model Comparison — Test Set R2")
+573: [Normal] plt.tight_layout()
+574: [Normal] plt.show()
+577: [Normal] best_model_name = results_df.iloc[0]["model"]
+578: [Normal] best_pipeline = fitted_models[best_model_name]
+579: [Normal] print("Best model by R2:", best_model_name)
+581: [Normal] preprocess_step = best_pipeline.named_steps["preprocess"]
+582: [Normal] feature_names = preprocess_step.get_feature_names_out()
+583: [Normal] final_estimator = best_pipeline.named_steps["model"]
+585: [Normal] if hasattr(final_estimator, "feature_importances_"):
+586: [Normal] importances = pd.Series(final_estimator.feature_importances_, index=feature_names)
+587: [Normal] importances = importances.sort_values(ascending=False).head(15)
+588: [Normal] print("\nTop 15 feature importances:")
+589: [Normal] print(importances.round(4))
+590: [Normal] elif hasattr(final_estimator, "coef_"):
+591: [Normal] coefs = pd.Series(final_estimator.coef_, index=feature_names)
+592: [Normal] coefs = coefs.reindex(coefs.abs().sort_values(ascending=False).index).head(15)
+593: [Normal] print("\nTop 15 coefficients by magnitude:")
+594: [Normal] print(coefs.round(2))
+595: [Normal] else:
+596: [Normal] print("No importances/coefficients exposed by this model type.")
+599: [Normal] import joblib
+600: [Normal] import json
+601: [Normal] from pathlib import Path
+602: [Normal] from sklearn.pipeline import Pipeline as SkPipeline
+604: [Normal] # Where to save artifacts — adjust if you want a different location
+605: [Normal] artifacts_dir = Path("artifacts")
+606: [Normal] artifacts_dir.mkdir(exist_ok=True)
+608: [Normal] # Split the winning pipeline into its preprocessing steps and its final estimator.
+609: [Normal] # Works regardless of which model won (e.g. SVM has an extra "scale" step, trees don't).
+610: [Normal] steps = dict(best_pipeline.named_steps)
+611: [Normal] model = steps.pop("model")
+612: [Normal] preprocessor = SkPipeline(list(steps.items()))
+614: [Normal] # 1. The fitted preprocessor (encodes raw columns -> model-ready features)
+615: [Normal] joblib.dump(preprocessor, artifacts_dir / "preprocessor.pkl")
+617: [Normal] # 2. The trained model (fits on the preprocessor's output)
+618: [Normal] joblib.dump(model, artifacts_dir / "model.pkl")
+620: [Normal] # 3. The exact raw column order the preprocessor expects as input
+621: [Normal] feature_columns = X_train.columns.tolist()
+622: [Normal] with open(artifacts_dir / "feature_columns.json", "w") as f:
+623: [Normal] json.dump(feature_columns, f, indent=2)
+625: [Normal] # 4. Everything a UI needs to build valid inputs + show model context
+626: [Normal] metadata = {
+627: [Normal] "best_model_name": best_model_name,
+628: [Normal] "test_r2": float(results_df.iloc[0]["R2"]),
+629: [Normal] "test_mae": float(results_df.iloc[0]["MAE"]),
+630: [Normal] "category_options": {
+631: [Normal] col: sorted(X_train[col].dropna().unique().tolist())
+632: [Normal] for col in nominal_cols + ordinal_col
+633: [Normal] },
+634: [Normal] "numeric_ranges": {
+635: [Normal] col: {"min": int(X_train[col].min()), "max": int(X_train[col].max())}
+636: [Normal] for col in numeric_cols
+637: [Normal] },
+638: [Normal] "ordinal_order": {"education_required": ordinal_categories[0]},
+639: [Normal] }
+640: [Normal] with open(artifacts_dir / "metadata.json", "w") as f:
+641: [Normal] json.dump(metadata, f, indent=2)
+643: [Normal] print("Saved:", sorted(p.name for p in artifacts_dir.iterdir()))
+644: [Normal] print(f"Best model: {best_model_name}  (test R2 = {metadata['test_r2']:.3f})")
+646: [Heading 2] D.2. app.py File — Streamlit Salary Predictor
+648: [Normal] 2.1 Imports, Paths & Page Setup
+650: [Normal] 2.2 Custom Styling
+652: [Normal] 2.3 Loading the Model (Cached)
+654: [Normal] 2.4 The predict() Function
+656: [Normal] 2.5 Reading Metadata for the Form
+658: [Normal] 2.6 Header & Live Model Metrics
+660: [Normal] 2.7 The Prediction Form
+663: [Normal] Right column: Remote Work, Company Size, Industry, Demand Score (slider), Benefits Score (slider)
+665: [Normal] 2.8 Handling Submission & Displaying the Result
+667: [Normal] 2.9 Full Code
+669: [Normal] """
+670: [Normal] AI Job Market Salary Predictor
+671: [Normal] Complete Streamlit App (Country only UI)
+672: [Normal] """
+674: [Normal] import json
+675: [Normal] from pathlib import Path
+677: [Normal] import joblib
+678: [Normal] import pandas as pd
+679: [Normal] import streamlit as st
+681: [Normal] ARTIFACTS_DIR = Path(__file__).parent / "artifacts"
+682: [Normal] PREPROCESSOR_PATH = ARTIFACTS_DIR / "preprocessor.pkl"
+683: [Normal] MODEL_PATH = ARTIFACTS_DIR / "model.pkl"
+684: [Normal] FEATURE_COLUMNS_PATH = ARTIFACTS_DIR / "feature_columns.json"
+685: [Normal] METADATA_PATH = ARTIFACTS_DIR / "metadata.json"
+687: [Normal] DEFAULT_CITY = "Unknown"   # Change if your model expects a specific city.
+689: [Normal] st.set_page_config(
+690: [Normal] page_title="AI Job Salary Predictor",
+691: [Normal] page_icon="💰",
+692: [Normal] layout="wide",
+693: [Normal] initial_sidebar_state="collapsed",
+694: [Normal] )
+696: [Normal] st.markdown("""
+697: [Normal] <style>
+698: [Normal] .block-container{max-width:1200px;padding-top:2rem}
+699: [Normal] .main-title{text-align:center;font-size:42px;font-weight:800;color:#2563eb}
+700: [Normal] .sub-title{text-align:center;color:#6b7280;margin-bottom:1rem}
+701: [Normal] div[data-testid="stForm"]{
+702: [Normal] padding:1.5rem;
+703: [Normal] border-radius:16px;
+704: [Normal] border:1px solid rgba(120,120,120,.25);
+705: [Normal] }
+706: [Normal] .prediction{
+707: [Normal] background:linear-gradient(135deg,#2563eb,#7c3aed);
+708: [Normal] padding:2rem;
+709: [Normal] border-radius:18px;
+710: [Normal] text-align:center;
+711: [Normal] color:white;
+712: [Normal] }
+713: [Normal] .prediction *{color:white!important}
+714: [Normal] .footer{text-align:center;color:gray;margin-top:2rem}
+715: [Normal] </style>
+716: [Normal] """, unsafe_allow_html=True)
+718: [Normal] def _require(path):
+719: [Normal] if not path.exists():
+720: [Normal] st.error(f"Missing artifact: {path}")
+721: [Normal] st.stop()
+723: [Normal] @st.cache_resource
+724: [Normal] def load():
+725: [Normal] for p in [PREPROCESSOR_PATH, MODEL_PATH, FEATURE_COLUMNS_PATH, METADATA_PATH]:
+726: [Normal] _require(p)
+727: [Normal] pre = joblib.load(PREPROCESSOR_PATH)
+728: [Normal] model = joblib.load(MODEL_PATH)
+729: [Normal] cols = json.loads(FEATURE_COLUMNS_PATH.read_text())
+730: [Normal] meta = json.loads(METADATA_PATH.read_text())
+731: [Normal] return pre, model, cols, meta
+733: [Normal] def predict(pre, model, cols, inputs):
+734: [Normal] row = pd.DataFrame([inputs])
+735: [Normal] row = row.reindex(columns=cols)
+736: [Normal] x = pre.transform(row)
+737: [Normal] return float(model.predict(x)[0])
+739: [Normal] pre, model, feature_columns, metadata = load()
+741: [Normal] cats = metadata["category_options"]
+742: [Normal] ranges = metadata["numeric_ranges"]
+743: [Normal] education_order = metadata["ordinal_order"]["education_required"]
+748: [Normal] m1,m2,m3=st.columns(3)
+749: [Normal] m1.metric("Model",metadata["best_model_name"])
+750: [Normal] m2.metric("Test R²",f'{metadata["test_r2"]:.3f}')
+751: [Normal] m3.metric("MAE",f'${metadata["test_mae"]:,.0f}')
+753: [Normal] with st.form("prediction"):
+754: [Normal] c1,c2=st.columns(2)
+755: [Normal] with c1:
+756: [Normal] job_title=st.selectbox("Job Title",cats["job_title"])
+757: [Normal] ai=st.selectbox("AI Engineering",cats["AI Engineering"])
+758: [Normal] exp=st.slider("Years of Experience",
+759: [Normal] ranges["years_of_experience"]["min"],
+760: [Normal] ranges["years_of_experience"]["max"],5)
+761: [Normal] edu=st.selectbox("Education",education_order)
+762: [Normal] country=st.selectbox("Country",cats["country"])
+763: [Normal] with c2:
+764: [Normal] remote=st.selectbox("Remote Work",cats["remote_work"])
+765: [Normal] company=st.selectbox("Company Size",cats["company_size"])
+766: [Normal] industry=st.selectbox("Industry",cats["industry"])
+767: [Normal] demand=st.slider("Demand Score",
+768: [Normal] ranges["demand_score"]["min"],
+769: [Normal] ranges["demand_score"]["max"],
+770: [Normal] (ranges["demand_score"]["min"]+ranges["demand_score"]["max"])//2)
+771: [Normal] benefits=st.slider("Benefits Score",
+772: [Normal] ranges["benefits_score_10"]["min"],
+773: [Normal] ranges["benefits_score_10"]["max"],
+776: [Normal] submit=st.form_submit_button("🚀 Predict Salary",use_container_width=True)
+778: [Normal] if submit:
+779: [Normal] inputs={
+780: [Normal] "job_title":job_title,
+781: [Normal] "AI Engineering":ai,
+782: [Normal] "years_of_experience":exp,
+783: [Normal] "education_required":edu,
+784: [Normal] "city":DEFAULT_CITY,
+785: [Normal] "country":country,
+786: [Normal] "remote_work":remote,
+787: [Normal] "company_size":company,
+788: [Normal] "industry":industry,
+789: [Normal] "demand_score":demand,
+790: [Normal] "benefits_score_10":benefits,
+791: [Normal] }
+793: [Normal] with st.spinner("Predicting..."):
+794: [Normal] salary=predict(pre,model,feature_columns,inputs)
+796: [Normal] st.markdown(f"""
+797: [Normal] <div class="prediction">
+798: [Normal] <h2>Estimated Annual Salary</h2>
+799: [Normal] <h1>${salary:,.0f}</h1>
+800: [Normal] <p>{metadata["best_model_name"]}</p>
+801: [Normal] </div>
+802: [Normal] """,unsafe_allow_html=True)
+804: [Normal] st.dataframe(pd.DataFrame(inputs.items(),columns=["Feature","Value"]),
+805: [Normal] use_container_width=True,hide_index=True)
+807: [Normal] st.markdown('<div class="footer">Built with Streamlit • Scikit-learn • Python</div>',
+808: [Normal] unsafe_allow_html=True)
+810: [Heading 1] E – INSTALLATION & HOW TO RUN THE PROJECT
+813: [Normal] Ai_job_market/
+814: [Normal] ├── artifacts/                            (created by the notebook: preprocessor.pkl,
+815: [Normal] │                                           model.pkl, feature_columns.json, metadata.json)
+816: [Normal] ├── data/
+817: [Normal] │   └── ai_jobs_market_2025_2026.csv       (raw dataset)
+818: [Normal] ├── salary_predict_corrected.ipynb         (data cleaning + EDA + model training)
+819: [Normal] └── app.py                                 (Streamlit dashboard)
+820: [Normal] All commands below should be run from inside the Ai_job_market/ root folder.
+822: [Heading 2] Step 1: Install the required libraries
+823: [Normal] Open a terminal in the project root and run:
+824: [Normal] pip install pandas numpy matplotlib scikit-learn joblib streamlit jupyter
+825: [Heading 2] Step 2: Run the data cleaning, EDA & model-training notebook
+827: [Normal] jupyter notebook salary_predict_corrected.ipynb
+829: [Heading 2] Step 3: Launch the Streamlit dashboard
+830: [Normal] Once artifacts/ has been created by the notebook, start the dashboard from the project root:
+831: [Normal] streamlit run app.py
+832: [Normal] This opens the AI Job Market Salary Predictor in your browser at http://localhost:8501, where you ca
+835: [Heading 1] F - CONCLUSION AND FUTURE DEVELOPMENT
+841: [Normal] Figure 1. Share of clean rows affected by major logic/integrity findings.
+846: [Normal] Figure 2. Target distribution after basic cleaning.
+852: [Normal] Allowed model inputs:
+857: [Normal] Figure 3. Top 30 TRAIN-only encoded correlations with annual_salary_usd.
+860: [Normal] Purpose of Stage 9: compare all approved model families on identical development-period folds and fr
+863: [Caption Tech] Figure 18. Model comparison summary across the five temporal-validation folds.
+867: [Normal] Purpose of Stage 10: confirm the frozen model on the locked period and determine whether its errors 
+869: [Caption Tech] Figure 19. Locked-test actual versus predicted annual salary.
+871: [Caption Tech] Figure 20. Locked-test MAE by actual salary band.
+876: [Normal] Purpose of Stages 11 and 12: deploy the same fitted preprocessing and Random Forest estimator used o
+882: [Heading 1] G - REFERENCES
+883: [Normal] eBook
+884: [Normal] eBook
+885: [Normal] eBook
+886: [Normal] eBook
+888: [Heading 1] H - TASK ASSIGNMENT TABLE
+891: [Normal] - Data Dictionary and Modeling Role – before cleaning:
