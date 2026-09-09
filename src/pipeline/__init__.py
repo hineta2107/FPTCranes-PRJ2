@@ -209,23 +209,15 @@ def feature_policy_table() -> pd.DataFrame:
 
 
 def ablation_plan() -> dict[str, list[str]]:
-    core = [
-        "job_title",
-        "job_category",
-        "education_required",
-        "city",
-        "country",
-        "remote_work",
-        "company_size",
-        "industry",
-        "demand_score",
-        "benefits_score_10",
-    ]
+    from src.constants import MODEL_FEATURES, NOMINAL_FEATURES, ORDINAL_FEATURES
+    
+    categories = NOMINAL_FEATURES + ORDINAL_FEATURES
+    
     return {
-        "A0_CONSERVATIVE_CORE": core,
-        "A1_PLUS_YEARS": core + ["years_of_experience"],
-        "A2_EXPERIENCE_BUCKET": core + ["experience_level"],
-        "A6_SKILLS": core + ["years_of_experience", "required_skills", "skill_count"],
+        "A_FULL_FEATURES": list(MODEL_FEATURES),
+        "B_CATEGORIES_AND_EXP": categories + ["years_of_experience"],
+        "C_ALL_EXCEPT_CATEGORIES": [f for f in MODEL_FEATURES if f not in categories],
+        "D_ALL_EXCEPT_EXP": [f for f in MODEL_FEATURES if f != "years_of_experience"],
     }
 
 
@@ -417,10 +409,22 @@ def run_pipeline(data_path: Path | None = None, output_root: Path | None = None)
     )
     save_csv(stage4_summary, paths.basic / "04_cleaning_summary.csv")
 
-    # Lock March-2026 BEFORE target-aware Stage 5/7 diagnostics.
-    locked_mask = clean["posting_year"].astype(int).eq(int(config["split"]["locked_test"]["year"])) & clean["posting_month"].astype(int).eq(int(config["split"]["locked_test"]["month"]))
+    # Lock the latest month available in the dataset as Locked Test
+    latest_year = clean["posting_year"].astype(int).max()
+    latest_month = clean.loc[clean["posting_year"].astype(int) == latest_year, "posting_month"].astype(int).max()
+    locked_mask = clean["posting_year"].astype(int).eq(latest_year) & clean["posting_month"].astype(int).eq(latest_month)
     dev = clean.loc[~locked_mask].copy().sort_values(["posting_year", "posting_month"]).reset_index(drop=True)
-    locked = clean.loc[locked_mask].copy().reset_index(drop=True)
+    
+    # Hold out 10 rows for Study Cases to strictly prevent data leakage from final evaluation
+    locked_full = clean.loc[locked_mask].copy().reset_index(drop=True)
+    if len(locked_full) >= 10:
+        study_cases = locked_full.sample(n=10, random_state=SEED)
+        locked = locked_full.drop(study_cases.index).reset_index(drop=True)
+    else:
+        study_cases = locked_full.copy()
+        locked = locked_full.copy()
+    save_csv(study_cases, paths.basic / "04_held_out_study_cases.csv")
+    
     if dev.empty or locked.empty:
         raise RuntimeError("Temporal split gate failed: development or locked-test partition is empty.")
 
@@ -524,10 +528,10 @@ def run_pipeline(data_path: Path | None = None, output_root: Path | None = None)
                     "feature_count": len(features),
                     "features": " | ".join(features),
                     "decision_question": {
-                        "A0_CONSERVATIVE_CORE": "Reference plausibility without experience or skills.",
-                        "A1_PLUS_YEARS": "Does granular years materially improve temporal validation?",
-                        "A2_EXPERIENCE_BUCKET": "Does the contradictory categorical bucket add defensible signal?",
-                        "A6_SKILLS": "Do TRAIN-only multi-hot skills justify added complexity?",
+                        "A_FULL_FEATURES": "Baseline with all features.",
+                        "B_CATEGORIES_AND_EXP": "Are categories and experience enough to achieve full performance?",
+                        "C_ALL_EXCEPT_CATEGORIES": "How much performance is lost without categorical features?",
+                        "D_ALL_EXCEPT_EXP": "How much performance is lost without experience?",
                     }[name],
                 }
                 for name, features in plan.items()
@@ -628,14 +632,14 @@ def run_pipeline(data_path: Path | None = None, output_root: Path | None = None)
     stage_header(8, STAGES[7])
     split_summary = pd.DataFrame(
         [
-            {"partition": "TRAIN_DEV", "rows": len(dev), "pct": len(dev) / len(clean) * 100, "rule": "Before 2026-03"},
-            {"partition": "LOCKED_TEST", "rows": len(locked), "pct": len(locked) / len(clean) * 100, "rule": "2026-03 only"},
+            {"partition": "TRAIN_DEV", "rows": len(dev), "pct": len(dev) / len(clean) * 100, "rule": f"Before {latest_year}-{latest_month:02d}"},
+            {"partition": "LOCKED_TEST", "rows": len(locked), "pct": len(locked) / len(clean) * 100, "rule": f"{latest_year}-{latest_month:02d} only"},
         ]
     )
     save_csv(split_summary, paths.ml_ready / "08_split_summary.csv")
     monthly = clean.groupby(["posting_year", "posting_month"]).size().reset_index(name="rows")
     monthly["period"] = monthly["posting_year"].astype(int).astype(str) + "-" + monthly["posting_month"].astype(int).astype(str).str.zfill(2)
-    monthly["partition"] = np.where((monthly["posting_year"].eq(LOCKED_YEAR)) & (monthly["posting_month"].eq(LOCKED_MONTH)), "LOCKED_TEST", "TRAIN_DEV")
+    monthly["partition"] = np.where((monthly["posting_year"].eq(latest_year)) & (monthly["posting_month"].eq(latest_month)), "LOCKED_TEST", "TRAIN_DEV")
     save_csv(monthly, paths.ml_ready / "08_monthly_distribution.csv")
     before_after = pd.DataFrame(
         [
@@ -767,8 +771,8 @@ def run_pipeline(data_path: Path | None = None, output_root: Path | None = None)
             }
         )
     ablation = pd.DataFrame(ablation_rows)
-    base_mae = float(ablation.loc[ablation["experiment"].eq("A0_CONSERVATIVE_CORE"), "CV_MAE_mean"].iloc[0])
-    ablation["MAE_improvement_vs_A0_pct"] = (base_mae - ablation["CV_MAE_mean"]) / base_mae * 100
+    base_mae = float(ablation.loc[ablation["experiment"].eq("A_FULL_FEATURES"), "CV_MAE_mean"].iloc[0])
+    ablation["MAE_improvement_vs_A_FULL_pct"] = (base_mae - ablation["CV_MAE_mean"]) / base_mae * 100
     save_csv(ablation.sort_values("CV_MAE_mean"), paths.comparison / "09_feature_family_ablation.csv")
     plot_ablation(ablation, paths.comparison / "09_feature_family_ablation.png")
 
@@ -912,7 +916,7 @@ def run_pipeline(data_path: Path | None = None, output_root: Path | None = None)
         "model_features": MODEL_FEATURES,
         "structured_features": STRUCTURED_FEATURES,
         "blocked_features": BLOCKED_FEATURES,
-        "locked_test": {"year": LOCKED_YEAR, "month": LOCKED_MONTH, "rows": len(locked)},
+        "locked_test": {"year": int(latest_year), "month": int(latest_month), "rows": len(locked)},
         "development_rows": len(dev),
         "category_options": category_options,
         "numeric_ranges": numeric_ranges,

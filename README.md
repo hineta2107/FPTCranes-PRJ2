@@ -171,3 +171,11 @@ AI_JOB_PASSWORD=your_password
 - Empirical prediction interval
 - OOD / review flags
 - Locked-test serving evidence charts
+
+## Recent Updates (Changelog)
+
+- **UI Refactoring:** Reorganized `_model_comparison.py`, `_best_model.py`, and `_prediction.py` to use a clean 4-tab layout for better UX.
+- **Bug Fix:** Fixed `NameError: name 'px' is not defined` in `_prediction.py` by adding the missing `plotly.express` import.
+- **Chart Restoration:** Restored the missing Runtime Performance charts in `_model_comparison.py`, displaying Fit time and Predict time side-by-side.
+- **Dynamic Study Cases:** Changed the Study Cases section in `_prediction.py` to dynamically load random real records from the raw dataset (`ai_jobs_market_2025_2026.csv`) instead of using hardcoded mock data. Added a button to randomly redraw the cases.
+- **Data Resilience:** Enhanced `_load_raw_data()` in `_prediction.py` to automatically handle the corrupted CSV header (`AI Engineering` -> `job_category`) and dynamically calculate `skill_count` based on `required_skills` during inference, preventing `KeyError` during prediction.
