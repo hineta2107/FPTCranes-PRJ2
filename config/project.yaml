@@ -1,0 +1,87 @@
+project:
+  name: AI Job Market Segmentation + Salary Prediction
+  target: annual_salary_usd
+  random_seed: 42
+  locked_test_year: 2026
+  locked_test_month: 3
+  temporal_cv_folds: 5
+  source_schema_version: v1
+cleaning:
+  canonical_rename:
+    AI Engineering: job_category
+  invalid_category_tokens:
+    - job_category
+  drop_identifier: true
+segmentation:
+  k_min: 2
+  k_max: 8
+  use_family_balancing: true
+
+  # PCA contract: fit the PCA basis on DEV only. Clustering uses as many PCs
+  # as required to preserve this cumulative variance; PC1/PC2 are display-only.
+  pca_variance_threshold: 0.85
+  pca_min_components: 2
+  pca_max_components: 25
+  visualization_components: 2
+
+  # Optimizer-seed stability gate.
+  stability_seeds: [11, 23, 42, 71, 101]
+  stability_min: 0.90
+
+  # Structural stability gate under row subsampling.
+  resample_stability:
+    enabled: true
+    n_resamples: 8
+    sample_fraction: 0.85
+    min_mean_ari: 0.75
+    random_seed: 2026
+
+  min_cluster_share: 0.05
+  silhouette_tolerance: 0.01
+
+  # Representation robustness study before the official K search.
+  # R0/R2/R3/R4 each refit their own global PCA after the ablation geometry
+  # is formed. R1 uses family-wise PCA with per-family caps and latent balancing.
+  representation_robustness:
+    enabled: true
+    silhouette_tolerance: 0.02
+    screening_stability_seeds: [11, 42, 101]
+    screening_resamples: 6
+    # Family-wise PCA caps stop any one family from dominating simply because
+    # it creates more latent components.
+    family_pca_caps:
+      Job Domain: 3
+      Experience & Education: 3
+      Company & Work Mode: 3
+      Geography: 3
+      Demand / Benefits: 3
+      Skills: 5
+prediction:
+  primary_metric: MAE
+  model_features:
+    - job_title
+    - job_category
+    - years_of_experience
+    - education_required
+    - city
+    - country
+    - remote_work
+    - company_size
+    - industry
+    - demand_score
+    - benefits_score_10
+    - required_skills
+    - skill_count
+  blocked_features:
+    - job_id
+    - salary_min_usd
+    - salary_max_usd
+    - salary_tier
+    - experience_level
+    - posting_year
+    - posting_month
+    - is_senior
+    - is_remote_friendly
+    - is_llm_role
+    - ai_salary_premium_pct
+    - demand_growth_yoy_pct
