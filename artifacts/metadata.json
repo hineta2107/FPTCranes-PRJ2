@@ -1,0 +1,333 @@
+{
+  "run_id": "20260924T114619Z",
+  "model_name": "Random Forest",
+  "target": "annual_salary_usd",
+  "model_features": [
+    "job_title",
+    "job_category",
+    "years_of_experience",
+    "education_required",
+    "city",
+    "country",
+    "remote_work",
+    "company_size",
+    "industry",
+    "demand_score",
+    "benefits_score_10",
+    "required_skills",
+    "skill_count"
+  ],
+  "category_options": {
+    "job_title": [
+      "AI Agent Developer",
+      "AI Business Analyst",
+      "AI Compliance Manager",
+      "AI Engineer",
+      "AI Ethics Officer",
+      "AI Infrastructure Eng",
+      "AI Product Manager",
+      "AI Research Scientist",
+      "AI Security Engineer",
+      "AI Solutions Architect",
+      "Computer Vision Engineer",
+      "Data Engineer (AI)",
+      "Data Scientist",
+      "Deep Learning Engineer",
+      "Generative AI Engineer",
+      "LLM Engineer",
+      "ML Engineer",
+      "MLOps Engineer",
+      "Multimodal AI Engineer",
+      "NLP Engineer",
+      "Prompt Engineer",
+      "RAG Engineer",
+      "Robotics Engineer (AI)",
+      "Senior Data Scientist",
+      "Senior ML Engineer"
+    ],
+    "job_category": [
+      "AI Engineering",
+      "Architecture",
+      "Business",
+      "Data Engineering",
+      "Data Science",
+      "Governance",
+      "Infrastructure",
+      "ML Operations",
+      "Product",
+      "Research",
+      "Robotics",
+      "Security"
+    ],
+    "education_required": [
+      "Associate's",
+      "Bachelor's",
+      "Bootcamp/Self-taught",
+      "Master's",
+      "PhD"
+    ],
+    "city": [
+      "Amsterdam",
+      "Austin",
+      "Bangalore",
+      "Beijing",
+      "Berlin",
+      "Boston",
+      "Chicago",
+      "Dubai",
+      "London",
+      "Los Angeles",
+      "New York",
+      "Paris",
+      "Remote",
+      "San Francisco",
+      "Seattle",
+      "Singapore",
+      "Sydney",
+      "Tokyo",
+      "Toronto",
+      "Zurich"
+    ],
+    "country": [
+      "Australia",
+      "Canada",
+      "China",
+      "France",
+      "Germany",
+      "Global",
+      "India",
+      "Japan",
+      "Netherlands",
+      "Singapore",
+      "Switzerland",
+      "UAE",
+      "UK",
+      "USA"
+    ],
+    "remote_work": [
+      "Fully Remote",
+      "Hybrid",
+      "On-site"
+    ],
+    "company_size": [
+      "Big Tech (FAANG+)",
+      "Enterprise (5000+)",
+      "Mid-size (501-5000)",
+      "SME (51-500)",
+      "Startup (1-50)"
+    ],
+    "industry": [
+      "Automotive",
+      "Consulting",
+      "Education",
+      "Energy",
+      "Finance",
+      "Government",
+      "Healthcare",
+      "Manufacturing",
+      "Media",
+      "Research",
+      "Retail",
+      "Technology"
+    ]
+  },
+  "country_city_options": {
+    "Australia": [
+      "Sydney"
+    ],
+    "Canada": [
+      "Toronto"
+    ],
+    "China": [
+      "Beijing"
+    ],
+    "France": [
+      "Paris"
+    ],
+    "Germany": [
+      "Berlin"
+    ],
+    "Global": [
+      "Remote"
+    ],
+    "India": [
+      "Bangalore"
+    ],
+    "Japan": [
+      "Tokyo"
+    ],
+    "Netherlands": [
+      "Amsterdam"
+    ],
+    "Singapore": [
+      "Singapore"
+    ],
+    "Switzerland": [
+      "Zurich"
+    ],
+    "UAE": [
+      "Dubai"
+    ],
+    "UK": [
+      "London"
+    ],
+    "USA": [
+      "Austin",
+      "Boston",
+      "Chicago",
+      "Los Angeles",
+      "New York",
+      "San Francisco",
+      "Seattle"
+    ]
+  },
+  "numeric_ranges": {
+    "years_of_experience": {
+      "min": 1.0,
+      "max": 15.0,
+      "median": 6.0
+    },
+    "demand_score": {
+      "min": 68.0,
+      "max": 98.0,
+      "median": 89.0
+    },
+    "benefits_score_10": {
+      "min": 6.0,
+      "max": 10.0,
+      "median": 8.0
+    },
+    "skill_count": {
+      "min": 3.0,
+      "max": 10.0,
+      "median": 6.0
+    }
+  },
+  "skill_vocabulary": [
+    "AI Literacy",
+    "AI Policy",
+    "APIs",
+    "Advanced Statistics",
+    "Agile",
+    "Airflow",
+    "Auditing",
+    "AutoGen",
+    "BERT",
+    "Business Analysis",
+    "C++",
+    "CI/CD",
+    "CNNs",
+    "CUDA",
+    "Causal Inference",
+    "Cloud",
+    "Cloud (AWS/GCP/Azure)",
+    "Communication",
+    "Computer Vision",
+    "Control Systems",
+    "Cybersecurity",
+    "Data Analysis",
+    "Data Visualization",
+    "Deep Learning",
+    "Deployment",
+    "Diffusion Models",
+    "Distributed Systems",
+    "Docker",
+    "Documentation",
+    "ETL",
+    "EU AI Act",
+    "Embeddings",
+    "Enterprise Architecture",
+    "Ethics Frameworks",
+    "Feature Stores",
+    "Fine-tuning",
+    "GPU Computing",
+    "GenAI APIs",
+    "Git",
+    "Hugging Face",
+    "Image Processing",
+    "Kubernetes",
+    "LLM APIs",
+    "LLM Fine-tuning",
+    "LLM Integration",
+    "LLMs",
+    "LangChain",
+    "Leadership",
+    "Legal Knowledge",
+    "Linux",
+    "ML",
+    "ML Algorithms",
+    "ML Security",
+    "MLOps",
+    "MLflow",
+    "Mathematics",
+    "Monitoring",
+    "NLP",
+    "Networking",
+    "Neural Networks",
+    "OpenCV",
+    "Planning Systems",
+    "Problem Solving",
+    "Product Strategy",
+    "Prompt Design",
+    "Prompt Engineering",
+    "Publishing",
+    "PyTorch",
+    "Python",
+    "RAG",
+    "ROS",
+    "Red Teaming",
+    "Research",
+    "Risk Analysis",
+    "Risk Assessment",
+    "Risk Management",
+    "SQL",
+    "Scikit-learn",
+    "Search Systems",
+    "Simulation",
+    "Spark",
+    "Stakeholder Mgmt",
+    "Statistics",
+    "Storage",
+    "System Design",
+    "TensorFlow",
+    "Testing",
+    "Text Processing",
+    "Tool Use",
+    "Transformers",
+    "Vector DBs",
+    "Vision-Language Models",
+    "dbt"
+  ],
+  "locked_test": {
+    "locked_test_year": 2026,
+    "locked_test_month": 3,
+    "selection_rule": "preferred_latest_period",
+    "development_rows": 1201,
+    "locked_test_rows": 298,
+    "development_pct": 80.12008005336891,
+    "locked_test_pct": 19.879919946631087,
+    "locked_test_period_label": "2026-03"
+  },
+  "locked_test_metrics": {
+    "MAE": 14877.047528117502,
+    "RMSE": 29829.114572720424,
+    "R2": 0.8033392360708063,
+    "MedAE": 4526.161986438645,
+    "prediction_interval_abs_error_q90": 42253.82922014264
+  },
+  "prediction_interval_abs_error_q90": 42253.82922014264,
+  "selected_hyperparameters": {
+    "max_depth": 20,
+    "max_features": 1.0,
+    "min_samples_leaf": 2,
+    "n_estimators": 400
+  },
+  "limitations": [
+    "Dataset shows strong logical/synthetic artifacts; results are suitable for academic benchmarking, not causal salary economics.",
+    "Feature importance indicates predictive reliance, not causality or fairness.",
+    "The practical error band is empirical validation error, not a formal confidence interval.",
+    "External verified market data and monitoring are required before operational compensation decisions."
+  ],
+  "source_file": "D:\\Downloads10\\FPTCranes-PRJ2-main (8)\\FPTCranes-PRJ2-main\\data\\raw\\ai_jobs_market_2025_2026.csv",
+  "workspace_root": "D:\\Downloads10\\FPTCranes-PRJ2-main (8)\\FPTCranes-PRJ2-main"
+}

@@ -1,0 +1,45 @@
+{
+  "development_dataset_id": "1d5b2a61946c9a81a499129d8dc3cf07b2a2148f961de623464c27280b730ae5",
+  "estimator_parameters": {
+    "bootstrap": true,
+    "ccp_alpha": 0.0,
+    "criterion": "squared_error",
+    "max_depth": 20,
+    "max_features": 1.0,
+    "max_leaf_nodes": null,
+    "max_samples": null,
+    "min_impurity_decrease": 0.0,
+    "min_samples_leaf": 2,
+    "min_samples_split": 2,
+    "min_weight_fraction_leaf": 0.0,
+    "monotonic_cst": null,
+    "n_estimators": 400,
+    "n_jobs": 1,
+    "oob_score": false,
+    "random_state": 42,
+    "verbose": 0,
+    "warm_start": false
+  },
+  "evidence_id": "ui-4ee3de59fabafb88",
+  "feature_order": [
+    "job_category",
+    "years_of_experience"
+  ],
+  "historical_test_dataset_id": "fad77ac0481dc34a38f33f33f28f28c326d5ef5c9f9187a69c87e5085d65ec99",
+  "historical_test_metrics": {
+    "MAE": 13872.923154423173,
+    "MedAE": 4204.18997480387,
+    "R2": 0.8207253649102273,
+    "RMSE": 28480.061639694857,
+    "coverage": 0.9026845637583892
+  },
+  "limitations": [
+    "Fixed feature ablation; not independently tuned.",
+    "Test error band is not guaranteed future or extrapolation coverage."
+  ],
+  "model_id": "top2:fixed",
+  "model_name": "Random Forest (fixed Top-2)",
+  "q90_abs_error_usd": 34181.209871969884,
+  "q90_basis": "historical_test_absolute_errors",
+  "schema_version": 1
+}

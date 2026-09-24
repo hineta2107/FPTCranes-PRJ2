@@ -1,0 +1,18 @@
+{
+  "model_features": [
+    "job_title",
+    "job_category",
+    "years_of_experience",
+    "education_required",
+    "city",
+    "country",
+    "remote_work",
+    "company_size",
+    "industry",
+    "demand_score",
+    "benefits_score_10",
+    "required_skills",
+    "skill_count"
+  ],
+  "target": "annual_salary_usd"
+}
